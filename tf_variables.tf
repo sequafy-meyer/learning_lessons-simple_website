@@ -55,3 +55,8 @@ variable "cert_arn" {
   type        = string
   default     = ""
 }
+
+variable "ec2_ami" {
+  description = "ID of the selected AMI"
+  type        = string
+}

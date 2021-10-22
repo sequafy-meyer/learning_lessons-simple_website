@@ -67,8 +67,8 @@ resource "aws_security_group" "webserver" {
   vpc_id            = aws_vpc.web_vpc.id
 
   ingress {
-    from_port       = 80
-    to_port         = 80
+    from_port       = 8080
+    to_port         = 8080
     protocol        = "TCP"
     security_groups = [aws_security_group.loadbalancer.id]
   }
@@ -88,6 +88,13 @@ resource "aws_security_group" "loadbalancer" {
   vpc_id            = aws_vpc.web_vpc.id
 
   ingress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "TCP"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+
+  ingress {
     from_port       = 443
     to_port         = 443
     protocol        = "TCP"
@@ -101,4 +108,13 @@ resource "aws_security_group" "loadbalancer" {
     },
     var.tags
   )
+}
+
+resource "aws_security_group_rule" "loadbalancer_to_webserver" {
+  type                     = "egress"
+  from_port                = 8080
+  to_port                  = 8080
+  protocol                 = "TCP"
+  source_security_group_id = aws_security_group.webserver.id
+  security_group_id        = aws_security_group.loadbalancer.id
 }

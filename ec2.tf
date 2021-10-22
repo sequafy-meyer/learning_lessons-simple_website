@@ -8,7 +8,7 @@ data "aws_ami" "latest_amazon_linux" {
 }
 
 resource "aws_instance" "webnode" {
-  ami                    = data.aws_ami.latest_amazon_linux.id
+  ami                    = var.ec2_ami
   iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
   instance_type          = var.ec2_type
   monitoring             = true
