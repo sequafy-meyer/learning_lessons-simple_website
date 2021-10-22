@@ -36,7 +36,7 @@ build {
 
   provisioner "shell" {
     inline         = ["sudo yum -y update",
-                      "sudo yum install -y php-fpm php-mysql",
+                      "sudo yum install -y php-fpm php-mysql mysql",
                       "sudo amazon-linux-extras install -y nginx1"]
     inline_shebang = "/bin/bash -e"
   }

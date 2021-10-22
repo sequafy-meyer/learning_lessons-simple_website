@@ -18,20 +18,7 @@ echo '$MOUNT_POINT:/ $SRVPATH nfs4 defaults,vers=4.1,rsize=1048576,wsize=1048576
 
 echo 'Create files ...'
 if [ ! -f "$SRVPATH/index.php" ]; then
-    echo "<?php require_once('functions.php') ?>
-      <html>
-      <head>
-        <title>Simple website</title>
-      </head>
-      <body>
-      <h2>Posts</h2>
-        <div>
-          <?php
-            echo get_entries();
-          ?>
-      </div>
-      </body>
-      </html>" > "$SRVPATH/index.php"
+  aws s3 cp s3://${bucket_name}/index.php $SRVPATH/index.php
 fi
 
 if [ ! -f "$SRVPATH/config.php" ]; then
@@ -46,30 +33,7 @@ if [ ! -f "$SRVPATH/config.php" ]; then
 fi
 
 if [ ! -f "$SRVPATH/functions.php" ]; then
-    echo "<?php
-  require_once('config.php');
-
-  function get_entries() {
-    global \$conn;
-    mysql_select_db('mysqldb');
-    \$retval = '';
-    \$query  = \"SELECT * FROM posts\";
-    \$result = mysql_query(\$query, \$conn);
-    if (! \$result) {
-      die(\"Can not get data: \" . mysql_error());
-    }
-
-    while(\$row = mysql_fetch_array(\$result, MYSQL_ASSOC)) {
-         \$retval .= \"<div>\";
-         \$retval .= \"<h3>{\$row['title']}</h3>\";
-         \$retval .= \"<div><span>{\$row['entry']}</span></div>\";
-         \$retval .= \"</div>\";
-    }
-    
-    mysql_close(\$conn);
-    return \$retval;
-  }
-?>" > "$SRVPATH/functions.php"
+  aws s3 cp s3://${bucket_name}/functions.php $SRVPATH/functions.php
 fi
 
 # Do some database magic
@@ -84,14 +48,14 @@ then
         echo "Table has records ..."
     else
         echo "Table is empty ..."
-        STATEMENT='INSERT INTO posts (id, title, entry) VALUES (1, "Jan B&ouml;hmermann", "hoffentlich gehen facebook, instagram und whatsapp nie wieder an"), (2, "Micky Beisenherz", "Wie sch&ouml;n das w&auml;re, wenn Social Media f&uuml;r 48 Stunden down w&auml;re und wir aus einer Art matrixartigem Schlaf erwachen und uns augenreibend fragen, was zur H&ouml;lle wir da gemeinsam eigentlich getan haben.<br />#whatsappdown #instadown"), (3, "GamerBrother", "Grad das erste Mal seit 2010 &uuml;ber SMS kommuniziert"), (4, "Kaufland", "#whatsappdown und #facebookdown. Wir haben &uuml;brigens auch Kerzen im Sortiment. F&uuml;r alle F&auml;lle."), (5, "Erik Fl&uuml;gge", "Ein einziger Konzern ist down und die halbe Welt ist kommunikativ lahmgelegt...<br />Fr&uuml;her hat man ja Monopole zerschlagen. Fr&uuml;her.<br />#facebookdown, #instagramdown, #whatsappdown"), (6, "Philip Steuer", "Stellt euch mal vor, alle Social Networks w&uuml;rden jeden Tag um 18 Uhr dicht machen & erst morgens um 8 Uhr wieder &ouml;ffnen. Sonntags komplett zu.<br />W&uuml;rde es die Mental Health positiv beeinflussen?<br />Oder eher negativ, weil man sich mit sich selbst besch&auml;ftigt?<br />#facebookdown")'
+        STATEMENT='INSERT INTO posts (id, title, entry) VALUES (1, "Steve Jobs", "Let&apos;s go invent tomorrow instead of worrying about what happened yesterday."), (2, "Stewart Brand", "Once a new technology rolls over you, if you&apos;re not part of the steamroller, you&apos;re part of the road."), (3, "Christian Lous Lange", "Technology is a useful servant but a dangerous master."), (4, "Billy Cox", "Technology should improve your life… not become your life."), (5, "Steve Jobs", "Technology is nothing. What&apos;s important is that you have a faith in people, that they&apos;re basically good and smart, and if you give them tools, they&apos;ll do wonderful things with them."), (6, "Arthur C. Clarke", "Any sufficiently advanced technology is equivalent to magic."), (7, "Douglas Adams", "Technology is a word that describes something that doesn&apos;t work yet.")'
         mysql -u "$DB_USER" -p"$DB_PASS" -e "$STATEMENT" -h "$DB_FQDN" --database=mysqldb
     fi
 else
     echo "Table not exists ..."
     STATEMENT="CREATE TABLE posts ( id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, title varchar(255) NOT NULL, entry varchar(255) NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=latin1"
     mysql -u "$DB_USER" -p"$DB_PASS" -e "$STATEMENT" -h "$DB_FQDN" --database=mysqldb
-    STATEMENT='INSERT INTO posts (id, title, entry) VALUES (1, "Jan B&ouml;hmermann", "hoffentlich gehen facebook, instagram und whatsapp nie wieder an"), (2, "Micky Beisenherz", "Wie sch&ouml;n das w&auml;re, wenn Social Media f&uuml;r 48 Stunden down w&auml;re und wir aus einer Art matrixartigem Schlaf erwachen und uns augenreibend fragen, was zur H&ouml;lle wir da gemeinsam eigentlich getan haben.<br />#whatsappdown #instadown"), (3, "GamerBrother", "Grad das erste Mal seit 2010 &uuml;ber SMS kommuniziert"), (4, "Kaufland", "#whatsappdown und #facebookdown. Wir haben &uuml;brigens auch Kerzen im Sortiment. F&uuml;r alle F&auml;lle."), (5, "Erik Fl&uuml;gge", "Ein einziger Konzern ist down und die halbe Welt ist kommunikativ lahmgelegt...<br />Fr&uuml;her hat man ja Monopole zerschlagen. Fr&uuml;her.<br />#facebookdown, #instagramdown, #whatsappdown"), (6, "Philip Steuer", "Stellt euch mal vor, alle Social Networks w&uuml;rden jeden Tag um 18 Uhr dicht machen & erst morgens um 8 Uhr wieder &ouml;ffnen. Sonntags komplett zu.<br />W&uuml;rde es die Mental Health positiv beeinflussen?<br />Oder eher negativ, weil man sich mit sich selbst besch&auml;ftigt?<br />#facebookdown")'
+    STATEMENT='INSERT INTO posts (id, title, entry) VALUES (1, "Steve Jobs", "Let&apos;s go invent tomorrow instead of worrying about what happened yesterday."), (2, "Stewart Brand", "Once a new technology rolls over you, if you&apos;re not part of the steamroller, you&apos;re part of the road."), (3, "Christian Lous Lange", "Technology is a useful servant but a dangerous master."), (4, "Billy Cox", "Technology should improve your life… not become your life."), (5, "Steve Jobs", "Technology is nothing. What&apos;s important is that you have a faith in people, that they&apos;re basically good and smart, and if you give them tools, they&apos;ll do wonderful things with them."), (6, "Arthur C. Clarke", "Any sufficiently advanced technology is equivalent to magic."), (7, "Douglas Adams", "Technology is a word that describes something that doesn&apos;t work yet.")'
     mysql -u "$DB_USER" -p"$DB_PASS" -e "$STATEMENT" -h "$DB_FQDN" --database=mysqldb
 fi
 

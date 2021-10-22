@@ -13,7 +13,10 @@ resource "aws_instance" "webnode" {
   instance_type          = var.ec2_type
   monitoring             = true
   subnet_id              = aws_subnet.private_a.id
-  user_data              = file("templates/userdata_webnode.tpl")
+  user_data              = templatefile("templates/userdata_webnode.tpl",{
+                             bucket_name = local.bucket_name
+  })
+
   vpc_security_group_ids = [ 
     aws_security_group.webserver.id,
     aws_security_group.default.id
@@ -25,6 +28,11 @@ resource "aws_instance" "webnode" {
     },
     var.tags,
   )
+
+  depends_on = [
+    aws_ssm_parameter.efs_var_www,
+    aws_ssm_parameter.db_instance
+  ]
 }
 
 data "aws_iam_policy_document" "ec2_assume" {
@@ -66,48 +74,8 @@ resource "aws_iam_policy" "ssm_access" {
   name = "ssm-access"
   path = "/terraform/epo/" 
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "AccessSSMparameterStore",
-      "Effect": "Allow",
-      "Action": [
-        "ssm:GetParameter",
-        "ssm:GetParameters"
-      ],
-      "Resource": "arn:aws:ssm:*:586724304112:parameter/webserver/*"
-    },
-    {
-      "Sid": "GetSecretsManagerValue",
-      "Effect": "Allow",
-      "Action": "secretsmanager:GetSecretValue",
-      "Resource": "arn:aws:secretsmanager:*:586724304112:secret:db/credentials*"
-    },
-    {
-      "Sid": "GetDecryptionKeyAndListAllOtherSecrets",
-      "Effect": "Allow",
-      "Action": [
-        "kms:Decrypt",
-        "secretsmanager:ListSecrets"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Sid": "ConnectViaSSM",
-      "Effect": "Allow",
-      "Action": [
-        "ssm:StartSession",
-        "ssm:TerminateSession",
-        "ssm:ResumeSession",
-        "ssm:DescribeSessions",
-        "ssm:GetConnectionStatus"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-EOF
-
+  policy = templatefile("templates/ec2_policy.tpl",{
+            bucket_name = local.bucket_name,
+            account_id  = data.aws_caller_identity.current.account_id
+  })
 }
