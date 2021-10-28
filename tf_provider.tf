@@ -3,9 +3,9 @@ provider "aws" {
 }
 
 provider "aws" {
-region = "eu-central-1"
- assume_role {
-    role_arn     = "arn:aws:iam::699444064213:role/route53.create_zone"
+  region = "eu-central-1"
+  assume_role {
+    role_arn     = var.domain_arn
   }
   alias = "route53"
 }

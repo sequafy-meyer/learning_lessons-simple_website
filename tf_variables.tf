@@ -50,6 +50,12 @@ variable "zone_id" {
   default     = ""
 }
 
+variable "domain_arn" {
+  description = "ARN of role which has sufficient rights to manage domain if domain is handled in different account"
+  type        = string
+  default     = ""
+}
+
 variable "cert_arn" {
   description = "ARN of an existing certificate"
   type        = string

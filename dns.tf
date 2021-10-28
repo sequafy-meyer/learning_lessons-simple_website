@@ -12,9 +12,9 @@ resource "aws_route53_zone" "domain" {
   )
 }
 
-resource "aws_route53_record" "domain_ns" {
+resource "aws_route53_record" "domain_ns_ext" {
   # Destination zone for NS records is set and records will be deployed to newly created zone
-  count   = var.zone_ns != "" && var.zone_id == "" ? 1 : 0
+  count   = var.zone_ns != "" && var.zone_id == "" && var.domain_arn != "" ? 1 : 0
   zone_id = var.zone_ns
   name    = var.domain
   type    = "NS"
@@ -30,6 +30,21 @@ resource "aws_route53_record" "domain_ns" {
   provider = aws.route53
 }
 
+resource "aws_route53_record" "domain_ns" {
+  # Destination zone for NS records is set and records will be deployed to newly created zone
+  count   = var.zone_ns != "" && var.zone_id == "" && var.domain_arn == ""? 1 : 0
+  zone_id = var.zone_ns
+  name    = var.domain
+  type    = "NS"
+  ttl     = "30"
+
+  records = [
+    aws_route53_zone.domain.0.name_servers.0,
+    aws_route53_zone.domain.0.name_servers.1,
+    aws_route53_zone.domain.0.name_servers.2,
+    aws_route53_zone.domain.0.name_servers.3
+  ]
+}
 
 # if domain is set and zone created we will create the cert records
 resource "aws_route53_record" "cert_validation" {

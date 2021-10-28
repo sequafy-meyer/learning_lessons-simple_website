@@ -1,4 +1,3 @@
-# # aws secretsmanager create-secret --name "db/credentials" --description "MySQL server credentials" --secret-string '{"username": "dbruth", "password": "s3hrg3h31m3sP@ssw0rd"}'
 data "aws_secretsmanager_secret" "rds_cred" {
   name ="db/credentials"
 }
