@@ -1,13 +1,11 @@
 resource "aws_lb" "web_lb" {
-  enable_deletion_protection = true
+  enable_deletion_protection = false
   internal                   = false
   load_balancer_type         = "application"
   name                       = "web-lb"
   security_groups            = [ aws_security_group.loadbalancer.id ]
-  subnets                    = [
-    aws_subnet.public_a.id,
-    aws_subnet.public_b.id
-  ]
+  subnets                    = aws_subnet.public.*.id
+
 
   tags = merge(
     {
@@ -71,7 +69,8 @@ resource "aws_lb_target_group" "web_target" {
 }
 
 resource "aws_lb_target_group_attachment" "web_target_attach" {
+  count            = var.ec2_scale ? 0 : 1
   target_group_arn = aws_lb_target_group.web_target.arn
-  target_id        = aws_instance.webnode.id
+  target_id        = aws_instance.webnode[0].id
   port             = 8080
 }

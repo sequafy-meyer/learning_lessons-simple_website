@@ -1,0 +1,26 @@
+{
+  "agent": {
+     "metrics_collection_interval": 60,
+     "logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log"
+    },
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/var/log/nginx/web_access.log",
+            "log_group_name": "/webserver/nginx",
+            "log_stream_name": "{hostname}_access.log",
+            "timezone": "UTC"
+          },
+          {
+            "file_path": "/var/log/nginx/web_error.log",
+            "log_group_name": "/webserver/nginx",
+            "log_stream_name": "{hostname}_error.log",
+            "timezone": "UTC"
+          }
+        ]
+      }
+    }
+  }
+}

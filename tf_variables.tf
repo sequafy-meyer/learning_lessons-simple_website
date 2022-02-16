@@ -15,12 +15,6 @@ variable "vpc_cidr" {
   default     = "192.168.0.0/24"
 }
 
-variable "az_index" {
-  description = "Index of the selected availability zone"
-  type        = number
-  default     = 0
-}
-
 variable "ec2_type" {
   description = "Type of the instance"
   type        = string
@@ -65,4 +59,10 @@ variable "cert_arn" {
 variable "ec2_ami" {
   description = "ID of the selected AMI"
   type        = string
+}
+
+variable "ec2_scale" {
+  description = "Activate usage of EC2 autoscaling"
+  type        = bool
+  default     = false
 }
