@@ -92,6 +92,11 @@ resource "aws_db_parameter_group" "default" {
     value = "utf8"
   }
 
+  parameter {
+    name  = "max_allowed_packet"
+    value = "1073741824"
+  }
+
   tags = merge(
     {
       Name        = "mysql-parameter-group"
